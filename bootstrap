@@ -1,13 +1,60 @@
-if [[ "$SPIN" = 1 ]]
-then
-  # Only run nested steps in Spin + shopify/shopify workspaces.
-  if [[ "$SPIN_REPO_SOURCE_PATH" = "/src/github.com/shopify/shopify" ]]
-  then
-    cd "$SPIN_REPO_SOURCE_PATH"
-    # This will always be the author of the cartridge, so for the shopify-reportify-config it will be shameelabd
-    cartridge insert shameelabd/shopify-reportify-config
-    . /cartridges/shopify-reportify-config/setup.sh
+#!/bin/bash
 
-    restart
-  fi
-fi
+set -euo pipefail
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Function to create symlink safely
+create_symlink() {
+    local source="$1"
+    local target="$2"
+    
+    if [ -e "$target" ] || [ -L "$target" ]; then
+        echo "Warning: $target already exists. Skipping..."
+        return 0
+    fi
+    
+    ln -sf "$source" "$target"
+    echo "✓ Linked $target"
+}
+
+# Function to setup zsh
+setup_zsh() {
+    echo "Setting up zsh..."
+    command -v zsh >/dev/null || { echo "✗ zsh not installed"; return 0; }
+
+    local zsh_path
+    zsh_path="$(command -v zsh)"
+
+    if [ "$(getent passwd "$USER" | cut -d: -f7)" != "$zsh_path" ]; then
+        echo "Changing login shell to $zsh_path"
+        sudo chsh -s "$zsh_path" "$USER"
+    fi
+
+    local login_shell
+    login_shell="$(getent passwd "$USER" | cut -d: -f7)"
+    echo "Login shell in /etc/passwd: $login_shell"
+
+    if [ "$login_shell" != "$zsh_path" ]; then
+        echo "✗ Login shell was not changed."
+        return 1
+    fi
+
+    echo "✓ zsh set as login shell"
+}
+
+# Expand ~ to home directory
+HOME_DIR="${HOME:?HOME variable not set}"
+
+# Create symlinks for shell configuration files
+create_symlink "$SCRIPT_DIR/shell/bashrc" "$HOME_DIR/.bashrc"
+create_symlink "$SCRIPT_DIR/shell/zshrc" "$HOME_DIR/.zshrc"
+create_symlink "$SCRIPT_DIR/git/gitconfig" "$HOME_DIR/.gitconfig"
+
+# Setup zsh
+setup_zsh
+
+echo ""
+echo "✓ Dotfiles have been successfully linked!"
+echo ""
