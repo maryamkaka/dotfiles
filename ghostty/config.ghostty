@@ -1,0 +1,4 @@
+theme = Dark+
+
+keybind = ctrl+t=new_tab
+keybind = ctrl+w=close_tab

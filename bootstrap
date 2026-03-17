@@ -51,6 +51,7 @@ HOME_DIR="${HOME:?HOME variable not set}"
 create_symlink "$SCRIPT_DIR/shell/bashrc" "$HOME_DIR/.bashrc"
 create_symlink "$SCRIPT_DIR/shell/zshrc" "$HOME_DIR/.zshrc"
 create_symlink "$SCRIPT_DIR/git/gitconfig" "$HOME_DIR/.gitconfig"
+create_symlink "$SCRIPT_DIR/ghostty" "$HOME_DIR/.config/ghostty"
 
 # Setup zsh
 setup_zsh
