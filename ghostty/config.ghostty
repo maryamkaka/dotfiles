@@ -1,4 +1,9 @@
 theme = Dark+
 
+shell-integration = none
+mouse-hide-while-typing = true
+
 keybind = ctrl+t=new_tab
 keybind = ctrl+w=close_tab
+keybind = performable:ctrl+c=copy_to_clipboard
+keybind = ctrl+v=paste_from_clipboard
